@@ -49,12 +49,12 @@ export class HeroService {
   }
 
   httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin' : '*' })
+    headers: new HttpHeaders({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
   };
 
   addHero(hero: Hero): Observable<Hero> {
-    return this.httpClient.post<Hero>(this.heroesUrl, hero, this.httpOptions).pipe (
-      tap( (newHero: Hero) => { this.log(`새로운저장 완료 w/ id= ${newHero.id}`)}),
+    return this.httpClient.post<Hero>(this.heroesUrl, hero, this.httpOptions).pipe(
+      tap((newHero: Hero) => { this.log(`새로운저장 완료 w/ id= ${newHero.id}`) }),
       catchError(this.handleError<Hero>('새로운저장이 실패 하였습니다'))
     );
   }
@@ -64,6 +64,22 @@ export class HeroService {
     return this.httpClient.delete<Hero>(url, this.httpOptions).pipe(
       tap(data => this.log(`삭제되었습니다 deleted hero id= ${id}`)),
       catchError(this.handleError<Hero>('삭제실패 deleteHero'))
+    );
+  }
+
+
+  searchHeroes(term: string): Observable<Hero[]> {
+    if (!term.trim()) {
+      // 입력된 내용이 없으면 빈 배열을 반환
+      return of([]);
+    }
+    const url = `${this.heroesUrl}?name=${term}`;
+    return this.httpClient.get<Hero[]>(url).pipe(
+      tap(x => x.length ?
+        this.log(`히어로를 찾았습니다 found heroes matching "${term}"`) :
+        this.log(`히어로가 목록에 존재하지 않습니다 no heroese matching "${term}"`)
+      ),
+      catchError(this.handleError<Hero[]>('검색을 불러올수 없습니다', []))
     );
   }
 

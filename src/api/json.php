@@ -1,14 +1,5 @@
 <?php
-
 $method = $_SERVER["REQUEST_METHOD"];
-// $data = array(
-//     array("id" => "11", "name" => 'Dr Nice1'),
-//     array("id" => "12", "name" => 'Narco2'),
-//     array("id" => "13", "name" => 'Bombasto'),
-//     array("id" => "14", "name" => 'Celeritas'),
-//     array("id" => "15", "name" => 'Magneta')
-// );
-
 // 파일 열기
 $file = "database.txt";
 $fp = fopen($file, "r") or die("파일을 열 수 없습니다！");
@@ -88,6 +79,7 @@ if ($method === "PUT" && $putdata->id && $putdata->name) {
 
     //입력된 데이터 json 보내기
     $data = $data_new;
+//히어로 삭제하기
 } else if ($method === "DELETE") {
     $id = $_GET['id'];
     $key_id = array_column($data, 'id');
@@ -109,6 +101,18 @@ if ($method === "PUT" && $putdata->id && $putdata->name) {
     }
     $fp = fopen($file, "w") or die("파일을 열 수 없습니다！");
     fputs($fp, $txt);
+// 히어로 검색하기
+} else if ($method === "GET" && $_GET['name']) {
+    $name = $_GET['name'];
+    $key_name = array_column($data, 'name');
+    $search = array_search($name, $key_name,  true);
+    $return_data = [];
+    foreach($key_name as $key => $item) {
+        if(strpos( strtoupper($item), strtoupper($name)) !== FALSE) {
+            $return_data[] = $data[$key];
+        }
+    }
+    $data = $return_data;
 }
 fclose($fp);
 echo json_encode($data, JSON_UNESCAPED_UNICODE);
